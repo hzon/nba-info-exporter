@@ -15,6 +15,12 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    /**
+     * Primary method for data export
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|null|string|void
+     */
     public function export(Request $request) {
         $type = $request['type'];
         $name = $request['player'];
@@ -59,6 +65,12 @@ class Controller extends BaseController
         return $this->format($data, $format);
     }
 
+    /**
+     * Extract additional player info and store as collection
+     *
+     * @param $players
+     * @return \Illuminate\Support\Collection
+     */
     private function getPlayerStatData($players)
     {
         $data = collect();
@@ -79,6 +91,13 @@ class Controller extends BaseController
         return $data;
     }
 
+    /**
+     * Show data according to preferred format
+     *
+     * @param $data
+     * @param $format
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View|null|string|void
+     */
     private function format($data, $format)
     {
         $result = null;
