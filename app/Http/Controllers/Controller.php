@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PlayerTotals;
+use App\Models\Report;
 use App\Models\Roster;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -15,11 +16,12 @@ class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     public function export(Request $request) {
-        $type = $request->type;
-        $name = $request->player;
-        $teamCode = $request->team;
-        $pos = $request->position;
-        $nationality = $request->country;
+        $type = $request['type'];
+        $name = $request['player'];
+        $teamCode = $request['team'];
+        $pos = $request['position'];
+        $nationality = $request['country'];
+        $format = $request['format'];
         $data = collect();
 
         $query = Roster::when($name, function ($query, $name) {
@@ -54,7 +56,7 @@ class Controller extends BaseController
             exit("Error: No data found");
         }
 
-        return $data;
+        return $this->format($data, $format);
     }
 
     private function getPlayerStatData($players)
@@ -75,5 +77,26 @@ class Controller extends BaseController
         }
 
         return $data;
+    }
+
+    private function format($data, $format)
+    {
+        $result = null;
+
+        switch ($format) {
+            case 'xml':
+                $result = Report::xml($data);
+                break;
+            case 'json':
+                $result = Report::json($data);
+                break;
+            case 'csv':
+                $result = Report::csv($data);
+                break;
+            default:
+                $result = Report::html($data);
+        }
+
+        return $result;
     }
 }
